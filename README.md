@@ -7,9 +7,9 @@ tiny-voca は、人間の発話データを一切使わず Qwen3-TTS の合成�
 ## 状態（2026-11-17）
 
 - 試作 v0.1（再学習なし）: 稼働中。日本語フロントエンドが日本語テキストを英語版の音素在庫（76記号）へ近似変換し、英語版の重み（F2/M2）のまま日本語を読ませる実験実装。単語の形は聞き取れるが外国語訛りが強い、という水準
-- 本格版: 計画確定、準備中。計画書は [PLAN.md](PLAN.md)
-  - Phase 0: 学習用コーパス構築と RunPod ランブック作成（ローカル作業、進行中）
-  - Phase 1 以降: RunPod の RTX 4090 で Qwen3-TTS による教師音声生成 → 学習
+- 本格版: 計画確定、Phase 0 完了。計画書は [PLAN.md](PLAN.md)
+  - Phase 0: 学習用コーパス 8,500文（train 8,000 / validation 250 / test 250）と RunPod ランブックを作成済み
+  - Phase 1 以降: RunPod の RTX 4090 で Qwen3-TTS による教師音声生成 → 学習（アカウント接続待ち）
 
 ## 試作 v0.1 の使い方
 
@@ -31,8 +31,8 @@ DIZIONE_DATA=<weights>/phonemizer python frontend/tiny_voca_ja.py \
 
 - `frontend/tiny_voca_ja.py` — 試作 v0.1 の日本語フロントエンド
 - `PLAN.md` — 本格版の計画書（工程、費用見積もり、設計判断、リスク）
-- `corpus/` — 学習用テキストコーパス（Phase 0 で追加予定）
-- `runpod/` — RunPod 実行ランブック（Phase 0 で追加予定）
+- `corpus/` — 学習用テキストコーパス 8,500文（`train.jsonl` / `validation.jsonl` / `test.jsonl`、統計と出典は `STATS.md`、構築スクリプト付き）
+- `runpod/RUNBOOK.md` — RunPod 実行ランブック（Pod 選択、環境構築、Phase 0.5 スパイク、コスト停止条件）
 
 ## ライセンス
 
