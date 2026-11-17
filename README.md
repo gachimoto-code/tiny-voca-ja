@@ -33,6 +33,7 @@ DIZIONE_DATA=<weights>/phonemizer python frontend/tiny_voca_ja.py \
 - `PLAN.md` — 本格版の計画書（工程、費用見積もり、設計判断、リスク）
 - `corpus/` — 学習用テキストコーパス 8,500文（`train.jsonl` / `validation.jsonl` / `test.jsonl`、統計と出典は `STATS.md`、構築スクリプト付き）
 - `runpod/RUNBOOK.md` — RunPod 実行ランブック（Pod 選択、環境構築、Phase 0.5 スパイク、コスト停止条件）
+- `docs/qwen-teacher-pipeline.md` — 本編のやり方: Qwen3-TTS を教師に、RunPod の Pod で学習する（Pod の選び方とストレージ設計を含む詳細）
 - `docs/muse-tts-teacher-variant.md` — 別案: Muse 標準TTSを教師にする方法（実測結果と比較実験の位置づけ）
 
 ## ライセンス
