@@ -1,43 +1,65 @@
 # tiny-voca-ja
 
-[tiny-voca](https://github.com/n4ze3m/tiny-voca)（n4ze3m、Apache-2.0）の日本語版を作るプロジェクトです。
+A Japanese text-to-speech model built with the tiny-voca recipe: trained from scratch on synthetic speech only — it has never heard a real human voice.
 
-tiny-voca は、人間の発話データを一切使わず Qwen3-TTS の合成音声だけで学習した 4.5M パラメータ・18MB の英語 TTS モデルです。本プロジェクトでは、原作者の公開レシピを日本語に置き換え、日本語データでゼロから学習したモデルを目指します。
+## 日本語まとめ
 
-## 状態（2026-11-17）
+tiny-voca（n4ze3m）の日本語版です。人間の声を一切使わず、Qwen3-TTS が生成した合成音声だけを教師データにして学習しました。パラメータ数は 4,538,827、重みは 18MB、CPU で実時間より速く合成できます。モデルとデータセットは Hugging Face で公開しています（下記リンク）。
 
-- 試作 v0.1（再学習なし）: 稼働中。日本語フロントエンドが日本語テキストを英語版の音素在庫（76記号）へ近似変換し、英語版の重み（F2/M2）のまま日本語を読ませる実験実装。単語の形は聞き取れるが外国語訛りが強い、という水準
-- 本格版: 計画確定、Phase 0 完了。計画書は [PLAN.md](PLAN.md)
-  - Phase 0: 学習用コーパス 8,500文（train 8,000 / validation 250 / test 250）と RunPod ランブックを作成済み
-  - Phase 1 以降: RunPod の RTX 4090 で Qwen3-TTS による教師音声生成 → 学習（アカウント接続待ち）
+## Links
 
-## 試作 v0.1 の使い方
+- **Model:** https://huggingface.co/gachimoto/tiny-voca-ja
+- **Dataset:** https://huggingface.co/datasets/gachimoto/tiny-voca-ja
+- **Original (English) tiny-voca:** https://github.com/n4ze3m/tiny-voca
 
-前提: 上流 tiny-voca のリポジトリと重み、Python 環境（torch、soundfile、pykakasi）。
+## Features
+
+- 4,538,827 parameters; the inference checkpoint is 18 MB
+- Synthesizes faster than real time on CPU — no GPU needed
+- 24 kHz mono output
+- Two synthetic voices: F2 and M2
+
+## How it was made
+
+1. **Corpus** — 8,500 Japanese sentences from Tatoeba, Common Voice, and hand-written templates.
+2. **Teacher audio** — Qwen3-TTS generated 16,321 clips in two designed voices (F2/M2).
+3. **Screening** — each clip was transcribed with Whisper and kept only if the reading matched the text (kana-normalised CER).
+4. **Annotation** — forced alignment with the prj-beatrice Japanese phoneme aligner produced the training labels; 11,561 clips passed (about 11.5 hours of audio).
+5. **Training** — 104,000 steps on a RunPod RTX 4090.
+
+## What changed for Japanese
+
+- The phoneme inventory grew from 76 to 84 symbols for Japanese (pyopenjtalk-plus based G2P; see `src/tiny_voca/text.py`).
+- `src/tiny_voca/align.py` implements the prj-beatrice phoneme aligner used to annotate the Japanese data.
+- `scripts/generate_audio_ja.py` generates the Japanese teacher audio.
+
+## Quickstart (inference)
+
+Download the checkpoint `tiny-voca-ja.pt` from the [model page](https://huggingface.co/gachimoto/tiny-voca-ja), install this package, and run:
 
 ```bash
-# 上流リポジトリを clone し、重みを取得しておく
-git clone https://github.com/n4ze3m/tiny-voca.git
-# 重みは Hugging Face の n4ze3m/tiny-voca から取得し weights/ に置く
-
-DIZIONE_DATA=<weights>/phonemizer python frontend/tiny_voca_ja.py \
-  --text "こんにちは、これは日本語対応のテストです。" \
-  --voice F2 --output sample.wav
+pip install .
+python -m tiny_voca.infer --checkpoint tiny-voca-ja.pt --text "こんにちは、世界。" --voice F2 --output out.wav
 ```
 
-変換の流れ: 数字の読み展開 → pykakasi で漢字をひらがな化（助詞「は→ワ」「へ→エ」の読み替え含む）→ モーラごとに最寄りの IPA 記号へ写像 → 既存モデルで推論。ピッチアクセントは扱いません。
+`--voice` is `F2` or `M2`. `--text-file <path>` reads the text from a UTF-8 file instead of `--text`. The console script `tiny-voca-speak` accepts the same arguments.
 
-## 構成
+## Cost
 
-- `frontend/tiny_voca_ja.py` — 試作 v0.1 の日本語フロントエンド
-- `PLAN.md` — 本格版の計画書（工程、費用見積もり、設計判断、リスク）
-- `corpus/` — 学習用テキストコーパス 8,500文（`train.jsonl` / `validation.jsonl` / `test.jsonl`、統計と出典は `STATS.md`、構築スクリプト付き）
-- `runpod/RUNBOOK.md` — RunPod 実行ランブック（Pod 選択、環境構築、Phase 0.5 スパイク、コスト停止条件）
-- `docs/qwen-teacher-pipeline.md` — 本編のやり方: Qwen3-TTS を教師に、RunPod の Pod で学習する（Pod の選び方とストレージ設計を含む詳細）
-- `docs/muse-tts-teacher-variant.md` — 別案: Muse 標準TTSを教師にする方法（実測結果と比較実験の位置づけ）
+About **$20 total (≈ ¥3,190)**, computed from instance prices × run time: teacher generation ≈ $9.18, training ≈ $4.69, everything else ≈ $5.82.
 
-## ライセンス
+## Limits
 
-- 本リポジトリのコードと文書: Apache-2.0（`LICENSE`）
-- 上流 tiny-voca: Apache-2.0（コード・重み）、データセットは CC BY 4.0
-- 学習コーパスの出典とライセンスは `corpus/` 内に記録します（Common Voice 文: CC0、Tatoeba 文: CC BY 2.0 / CC0 など）
+In the same honest spirit as the original:
+
+- Numbers and dates are read unreliably — one verification sentence (a date reading) scored CER 29.2%.
+- Pitch accent is not modelled, so the accent sounds foreign.
+- A formal 16-sentence evaluation has not been run yet; in a 4-sentence spot check, 3 sentences scored CER 0.0% and the date sentence failed as above.
+
+## Support
+
+It cost about $20 to make. If you like it, you can buy me a coffee: https://ko-fi.com/gachimoto3
+
+## Credits & License
+
+Based on [tiny-voca](https://github.com/n4ze3m/tiny-voca) by n4ze3m (Apache-2.0). Teacher model: Qwen3-TTS (Apache-2.0). Texts: Tatoeba (CC BY 2.0 FR) and Common Voice (CC0). The code in this repository is released under the Apache-2.0 license — see `LICENSE`.
