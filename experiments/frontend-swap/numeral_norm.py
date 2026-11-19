@@ -51,6 +51,11 @@ def _pun(n):
 
 
 def normalize_numerals(text):
+    # Unit notation the ASR prefers (%, kg) vs spelled-out reference words:
+    # map the symbols to the words so both sides carry them into kana space.
+    text = re.sub(r"\s*[%％]", "パーセント", text)
+    text = re.sub(r"(?<=\d)\s*kg", "キログラム", text, flags=re.IGNORECASE)
+
     def rep(pattern, func):
         nonlocal text
         text = re.sub(pattern, lambda m: func(int(m.group(1))), text)
