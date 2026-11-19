@@ -1,6 +1,9 @@
 # Score the pyopenjtalk-plus front-end clips with faster-whisper large-v3.
 # Same references and kana-CER method as the baseline (stock front end)
-# scores, so the two runs are directly comparable.
+# scores, so the two runs are directly comparable. Each clip also gets a
+# numeral-normalized CER (numeral_norm.py): digit expressions are converted
+# to readings on both sides first, which removes the notation artifact
+# described in this folder's README.
 #
 # Usage: python score_cer.py [audio_dir]
 # Expects <id>_oj.wav files in audio_dir (default: ./audio next to this file).
@@ -9,6 +12,9 @@
 # with scipy, so no ffmpeg/PyAV dependency is needed.
 import json, os, sys, time, unicodedata
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from numeral_norm import normalize_numerals
 
 HERE = Path(__file__).resolve().parent
 AUDIO = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "audio"
@@ -74,14 +80,17 @@ def main():
         dt = time.time() - t0
         rk, hk = kana(ref), kana(hyp)
         c = cer(rk, hk)
+        c_norm = cer(kana(normalize_numerals(ref)), kana(normalize_numerals(hyp)))
         results.append({"id": cid, "file": fname, "reference": ref, "hypothesis": hyp,
                         "ref_kana": rk, "hyp_kana": hk, "cer": round(c, 4),
+                        "cer_numeral_normalized": round(c_norm, 4),
                         "transcribe_sec": round(dt, 1)})
-        print(f"{cid}: CER {c*100:.1f}% ({dt:.1f}s) hyp={hyp}", flush=True)
+        print(f"{cid}: CER {c*100:.1f}% (normalized {c_norm*100:.1f}%) hyp={hyp}", flush=True)
     out = {"asr": "faster-whisper large-v3 int8 CPU", "frontend": "pyopenjtalk-plus",
            "clips": results,
            "mean_cer_bench_p7_p9": round(sum(r["cer"] for r in results[:3]) / 3, 4),
-           "mean_cer_phase5_s01_s04": round(sum(r["cer"] for r in results[3:]) / 4, 4)}
+           "mean_cer_phase5_s01_s04": round(sum(r["cer"] for r in results[3:]) / 4, 4),
+           "mean_cer_numeral_normalized": round(sum(r["cer_numeral_normalized"] for r in results) / len(results), 4)}
     out_path = HERE / "scores_oj.json"
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(out, f, ensure_ascii=False, indent=2)

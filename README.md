@@ -52,8 +52,8 @@ About **$20 total (≈ ¥3,190)**, computed from instance prices × run time: te
 
 In the same honest spirit as the original:
 
-- Numbers and dates are read unreliably — one verification sentence (a date reading) scored CER 29.2%.
-- A front-end swap experiment ([experiments/frontend-swap](experiments/frontend-swap/README.md)) traced most of that to the reading layer: with pyopenjtalk-plus readings, the Arabic-numeral date sentence scores CER 0.0% on the same checkpoint, while the kanji-numeral date sentence above stays at 25.0%.
+- Numbers and dates can be misread by the stock front end — in an Arabic-numeral date sentence it read 「今日は」 as the greeting 「こんにちは」 and got the weekday wrong (CER 2.6%). A front-end swap experiment ([experiments/frontend-swap](experiments/frontend-swap/README.md)) fixes that class of error on the same checkpoint (CER 0.0%).
+- Correction to an earlier claim: the kanji-numeral date sentence once reported here as "CER 29.2%" was mostly a scoring artifact — the ASR writes dates as digits while the reference is read as kanji numerals, so matching sounds were counted as errors. With numeral notation normalized on both sides, that sentence scores CER 0.0% with the stock front end and 2.1% with the swapped one.
 - Pitch accent is not modelled, so the accent sounds foreign.
 - A formal 16-sentence evaluation has not been run yet; in a 4-sentence spot check, 3 sentences scored CER 0.0% and the date sentence failed as above.
 
