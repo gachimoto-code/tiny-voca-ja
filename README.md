@@ -27,6 +27,10 @@ tiny-voca（n4ze3m）の日本語版です。人間の声を一切使わず、Qw
 4. **Annotation** — forced alignment with the prj-beatrice Japanese phoneme aligner produced the training labels; 11,561 clips passed (about 11.5 hours of audio).
 5. **Training** — 104,000 steps on a RunPod RTX 4090.
 
+## v2 fine-tune (2026-11-20)
+
+The model on Hugging Face is now **v2**: the v1 checkpoint fine-tuned for +10,000 steps (114,000 total) on the same corpus, re-annotated end to end with pyopenjtalk-plus labels and beatrice forced alignment (15,558 of 16,321 clips accepted). In the formal 16-sentence evaluation (Whisper large-v3, matched front end), the numeral-normalized CER improved from 1.6% to 1.0% and UTMOS from 3.67 to 3.73. The checkpoint's front-end identity changed to pyopenjtalk-plus (`oj-1`); see [VERSIONS.md](VERSIONS.md) for the version registry, checkpoint hashes and the full numbers.
+
 ## What changed for Japanese
 
 - The phoneme inventory grew from 76 to 84 symbols for Japanese (pyopenjtalk-plus based G2P; see `src/tiny_voca/text.py`).
@@ -55,7 +59,7 @@ In the same honest spirit as the original:
 - Numbers and dates can be misread by the stock front end — in an Arabic-numeral date sentence it read 「今日は」 as the greeting 「こんにちは」 and got the weekday wrong (CER 2.6%). A front-end swap experiment ([experiments/frontend-swap](experiments/frontend-swap/README.md)) fixes that class of error on the same checkpoint (CER 0.0%).
 - Correction to an earlier claim: the kanji-numeral date sentence once reported here as "CER 29.2%" was mostly a scoring artifact — the ASR writes dates as digits while the reference is read as kanji numerals, so matching sounds were counted as errors. With numeral notation normalized on both sides, that sentence scores CER 0.0% with the stock front end and 2.1% with the swapped one.
 - Pitch accent is not modelled, so the accent sounds foreign.
-- A formal 16-sentence evaluation has not been run yet; in a 4-sentence spot check, 3 sentences scored CER 0.0% and the date sentence failed as above.
+- The formal 16-sentence evaluation has since been run (2026-11-19): with the stock front end, mean CER was 6.6% raw and 1.6% after numeral normalization; the v2 fine-tune above scores 6.0% raw and 1.0% normalized with its matched front end.
 
 ## Support
 
