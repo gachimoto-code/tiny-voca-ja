@@ -23,7 +23,7 @@ tiny-voca-ja の学習済みモデルの版管理台帳。チェックポイン�
   - UTMOS: 110k 3.68 / 114k 3.73（現行 3.67）
   - 改善が耳で分かる例: E02「この電車は、博多行きの特急ですか」— 現行は「特急」を誤読（ASR書き起こし「都急」）、v2 は正しく発音
 - 採用候補: 114,000ステップ
-- 状態: ONNX書き出しと tiny-voca-ja-web へのモデル差し替えは未実施（ユーザー判断待ち）。LR修正版の再学習は「v2が現行を上回らなければ実行」の条件が未達のため実施しない
+- 状態: 展開完了（2026-11-20）。ONNX書き出し済み（検証: 相関1.000000、最大誤差0.0005）、Hugging Face更新済み（commit 0e577969）、tiny-voca-ja-web のモデル差し替え済み（Mac側コミット 8e1f45eb）。LR修正版の再学習は「v2が現行を上回らなければ実行」の条件が未達のため実施しない
 - 評価スコア: `~/workspace/tts-bench-ja/results/scores_eval16_v2.json` / `utmos_eval16_v2.json`
 - 評価音声: `~/workspace/tiny-voca-ja/frontend-swap/eval16-v2/`（current-oj / v2-110k-oj / v2-114k-oj、各16文）
 
