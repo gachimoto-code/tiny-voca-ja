@@ -29,7 +29,11 @@ tiny-voca（n4ze3m）の日本語版です。人間の声を一切使わず、Qw
 
 ## v2 fine-tune (2026-11-20)
 
-The model on Hugging Face is now **v2**: the v1 checkpoint fine-tuned for +10,000 steps (114,000 total) on the same corpus, re-annotated end to end with pyopenjtalk-plus labels and beatrice forced alignment (15,558 of 16,321 clips accepted). In the formal 16-sentence evaluation (Whisper large-v3, matched front end), the numeral-normalized CER improved from 1.6% to 1.0% and UTMOS from 3.67 to 3.73. The checkpoint's front-end identity changed to pyopenjtalk-plus (`oj-1`); see [VERSIONS.md](VERSIONS.md) for the version registry, checkpoint hashes and the full numbers.
+The v1 checkpoint was fine-tuned for +10,000 steps (114,000 total) on the same corpus, re-annotated end to end with pyopenjtalk-plus labels and beatrice forced alignment (15,558 of 16,321 clips accepted). In the formal 16-sentence evaluation (Whisper large-v3, matched front end), the numeral-normalized CER improved from 1.6% to 1.0% and UTMOS from 3.67 to 3.73. The checkpoint's front-end identity changed to pyopenjtalk-plus (`oj-1`); see [VERSIONS.md](VERSIONS.md) for the version registry, checkpoint hashes and the full numbers.
+
+## v3 fine-tune (2026-11-21) — now current
+
+The model on Hugging Face is now **v3**: the v2 checkpoint fine-tuned for another +20,000 steps (134,000 total) with new teacher data for English and mixed Japanese–English (172 additional Japanese sentences, 600 English, 300 mixed; 17,536 training rows with the English rows oversampled ×2). The 84-symbol inventory already contained the English phonemes, so the vocabulary is unchanged; the merged front-end identity is `oj-en-1`. Japanese quality is unchanged (16-sentence normalized CER 1.04%, identical to v2; UTMOS 3.70 vs 3.73), and the model now reads English: WER 2.84% / CER 2.75% on 40 unseen English sentences (UTMOS 4.05), and a katakana-folded CER of 10.88% on 20 mixed sentences. Same architecture and parameter count (4,538,827), so model size and speed are unchanged. Round cost: $4.00. Full numbers in [VERSIONS.md](VERSIONS.md).
 
 ## Vocoder pilot (2026-11-21)
 
