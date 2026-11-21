@@ -7,3 +7,9 @@ data/
 .env
 .env*
 !.env.example
+.venv-vocoder/
+vocoded_out/
+gen_final.pt
+list.txt
+input.aiff
+test24k.wav
