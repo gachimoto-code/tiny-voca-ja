@@ -31,6 +31,10 @@ tiny-voca（n4ze3m）の日本語版です。人間の声を一切使わず、Qw
 
 The model on Hugging Face is now **v2**: the v1 checkpoint fine-tuned for +10,000 steps (114,000 total) on the same corpus, re-annotated end to end with pyopenjtalk-plus labels and beatrice forced alignment (15,558 of 16,321 clips accepted). In the formal 16-sentence evaluation (Whisper large-v3, matched front end), the numeral-normalized CER improved from 1.6% to 1.0% and UTMOS from 3.67 to 3.73. The checkpoint's front-end identity changed to pyopenjtalk-plus (`oj-1`); see [VERSIONS.md](VERSIONS.md) for the version registry, checkpoint hashes and the full numbers.
 
+## Vocoder pilot (2026-11-21)
+
+The stock waveform head is a fixed source-filter, so its graininess cannot be trained away. As a pilot, a mel + HiFi-GAN vocoder was trained on ground-truth mels from the teacher audio to measure the ceiling. UTMOS (utmos22_strong, 24 test clips): teacher 4.06 vs vocoded 3.23 when trained from scratch, and 3.52 when initialised from the official pretrained HiFi-GAN V2 generator (90,000 steps each). The grain is reduced but not removed. Code and Mac instructions: [vocoder/README.md](vocoder/README.md). Weights are on Hugging Face under `vocoder/gen_final.pt`.
+
 ## What changed for Japanese
 
 - The phoneme inventory grew from 76 to 84 symbols for Japanese (pyopenjtalk-plus based G2P; see `src/tiny_voca/text.py`).

@@ -27,6 +27,14 @@ tiny-voca-ja の学習済みモデルの版管理台帳。チェックポイン�
 - 評価スコア: `~/workspace/tts-bench-ja/results/scores_eval16_v2.json` / `utmos_eval16_v2.json`
 - 評価音声: `~/workspace/tiny-voca-ja/frontend-swap/eval16-v2/`（current-oj / v2-110k-oj / v2-114k-oj、各16文）
 
+## ボコーダ・パイロット（モデル本体とは別の実験、2026-11-20〜21）
+
+- 目的：波形生成部（ソース・フィルタ式、固定数式）のザラザラが、メル＋HiFi-GAN で消えるかの上限測定。正解メル→波形のみが対象で、tiny-voca 本体のメル予測は未実施
+- 第1ラウンド（2026-11-20、スクラッチ、90,000ステップ、最終 mel 0.353）：UTMOS（utmos22_strong、テスト24文）教師 4.06 / ボコード 3.23（Δ−0.82）
+- 第2ラウンド（2026-11-21、公式 HiFi-GAN VCTK_V2 の generator_v2 で初期化、90,000ステップ、最終 mel 0.284）：UTMOS 教師 4.06 / ボコード 3.52（Δ−0.54）。改善したが、ザラザラは完全には消えず
+- 生成器（第2ラウンド）：Hugging Face `gachimoto/tiny-voca-ja` の `vocoder/gen_final.pt`（3.8MB）として公開。評価の内訳は同リポジトリの `vocoder/utmos_comparison_r1.json` / `vocoder/utmos_comparison_r2.json`
+- コード：本リポジトリ `vocoder/`（自前実装 models.py / mel.py / vocode.py、Mac での試し方は vocoder/README.md）
+
 ## 予定
 
 - 第2弾ファインチューン（未定）: 追加教師文172文＋英語ルートB（英語音素）をまとめて実施する計画。データ保持のため RunPod ボリューム x7z4fk7ar0 は残置中
